@@ -1,0 +1,78 @@
+$total-columns: 12 !default;
+$grid-gap: 20px !default;
+
+// Breakpoints
+
+$breakpoints: (
+  lg: ( 1200px ),
+  md: ( 992px ),
+  sm: ( 768px ),
+  xs: ( 480px )
+) !default;
+
+// Breakpoint mixin
+
+@mixin breakpoint($value,$name) {
+  // Prints a media query based on the value
+  @media (#{$value}:#{inspect(map-get($breakpoints, $name))}) {
+    @content;
+  }
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat($total-columns, 1fr);
+  grid-gap: $grid-gap;
+}
+
+// generate cell classes
+
+@for $i from 1 through $total-columns {
+  .grid-cell-#{$i} {
+    grid-column: span #{$i};
+  }
+}
+
+@mixin grid-cell-classes($size) {
+  @for $i from 1 through $total-columns {
+    .grid-cell-#{$size}-#{$i} {
+      grid-column: span #{$i};
+    }
+  }
+}
+
+// generate layout classes
+
+@for $i from 1 through $total-columns {
+  .grid-layout-#{$i} {
+    display: grid;
+    grid-template-columns: repeat(#{$i}, 1fr);
+    grid-gap: $grid-gap;
+  }
+}
+
+@mixin grid-parent-classes($size) {
+  @for $i from 1 through $total-columns {
+    .grid-layout-#{$size}-#{$i} {
+      grid-template-columns: repeat(#{$i}, 1fr);
+    }
+  }
+}
+
+// create cell classes for each breakpoint
+
+@each $key, $value in $breakpoints {
+  $value: nth($key, 1);
+  @include breakpoint(min-width,$value) {
+    @include grid-cell-classes($value);
+  }
+}
+
+// create layout classes for each breakpoint
+
+@each $key, $value in $breakpoints {
+  $value: nth($key, 1);
+  @include breakpoint(min-width,$value) {
+    @include grid-parent-classes($value);
+  }
+}
